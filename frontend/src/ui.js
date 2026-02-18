@@ -161,3 +161,52 @@ function escapeHtml(s) {
   div.textContent = s;
   return div.innerHTML;
 }
+
+export function renderChatButton() {
+  return `
+    <button type="button" id="chat-toggle" class="fixed bottom-6 right-6 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-red-600 text-white shadow-lg hover:bg-red-700 transition-colors" aria-label="Abrir asistente">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+    </button>
+  `;
+}
+
+export function renderChatPanel(messages, isLoading) {
+  const list = (messages || [])
+    .map((m) => {
+      const isUser = m.role === 'user';
+      return `
+        <div class="flex ${isUser ? 'justify-end' : 'justify-start'}">
+          <div class="max-w-[85%] rounded-xl px-3 py-2 text-sm ${isUser ? 'bg-red-600 text-white' : 'bg-red-50 border border-red-100 text-red-900'}">
+            <p class="whitespace-pre-wrap break-words">${escapeHtml(m.content)}</p>
+          </div>
+        </div>
+      `;
+    })
+    .join('');
+  const loadingHtml = isLoading
+    ? '<div class="flex justify-start"><div class="rounded-xl bg-red-50 border border-red-100 px-3 py-2 text-sm text-red-600">Escribiendo…</div></div>'
+    : '';
+  return `
+    <div id="chat-panel" class="fixed bottom-24 right-6 z-20 flex w-96 max-w-[calc(100vw-3rem)] flex-col rounded-xl border border-red-200 bg-white shadow-xl">
+      <div class="flex items-center justify-between border-b border-red-100 px-4 py-2">
+        <h3 class="text-sm font-semibold text-red-800">Asistente Mini CRM</h3>
+        <button type="button" id="chat-close" class="rounded p-1 text-red-600 hover:bg-red-50 transition-colors" aria-label="Cerrar">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="chat-messages" class="flex min-h-[200px] max-h-[320px] flex-1 flex-col gap-2 overflow-y-auto p-3">
+        ${list}
+        ${loadingHtml}
+      </div>
+      <form id="chat-form" class="border-t border-red-100 p-3">
+        <div class="flex gap-2">
+          <input type="text" id="chat-input" placeholder="Pregunta sobre la app…" autocomplete="off"
+            class="flex-1 rounded-lg border border-red-200 px-3 py-2 text-sm text-red-900 placeholder-red-400 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/30" />
+          <button type="submit" id="chat-send" ${isLoading ? 'disabled' : ''} class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50">
+            Enviar
+          </button>
+        </div>
+      </form>
+    </div>
+  `;
+}

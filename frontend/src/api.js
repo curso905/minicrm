@@ -19,4 +19,7 @@ export const api = {
     update: (id, body) => request(`/contacts/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
     delete: (id) => request(`/contacts/${id}`, { method: 'DELETE' }),
   },
+  chat: {
+    reply: (body) => request('/chat', { method: 'POST', body: JSON.stringify(body) }),
+  },
 };

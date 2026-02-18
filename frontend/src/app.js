@@ -1,5 +1,5 @@
 import { api } from './api.js';
-import { renderList, renderForm, renderEmpty, renderDashboardModal } from './ui.js';
+import { renderList, renderForm, renderEmpty, renderDashboardModal, renderChatButton, renderChatPanel } from './ui.js';
 
 function escapeHtml(s) {
   if (s == null) return '';
@@ -31,6 +31,7 @@ export async function initApp() {
         <section id="form-section"></section>
       </main>
       <div id="modal-container"></div>
+      <div id="chat-container"></div>
     </div>
   `;
 
@@ -123,6 +124,69 @@ export async function initApp() {
       alert(e.message);
     }
   }
+
+  const chatContainer = root.querySelector('#chat-container');
+  let chatOpen = false;
+  let chatMessages = [];
+  let chatLoading = false;
+  const chatSessionId = crypto.randomUUID?.() ?? `s-${Date.now()}`;
+
+  function openChat() {
+    chatOpen = true;
+    chatContainer.innerHTML = renderChatButton() + renderChatPanel(chatMessages, chatLoading);
+    chatContainer.querySelector('#chat-panel').scrollIntoView({ behavior: 'smooth' });
+    const messagesEl = chatContainer.querySelector('#chat-messages');
+    if (messagesEl) messagesEl.scrollTop = messagesEl.scrollHeight;
+    chatContainer.querySelector('#chat-toggle')?.addEventListener('click', closeChat);
+    chatContainer.querySelector('#chat-close')?.addEventListener('click', closeChat);
+    chatContainer.querySelector('#chat-form')?.addEventListener('submit', onChatSubmit);
+    chatContainer.querySelector('#chat-input')?.focus();
+  }
+
+  function closeChat() {
+    chatOpen = false;
+    chatContainer.innerHTML = renderChatButton();
+    chatContainer.querySelector('#chat-toggle')?.addEventListener('click', openChat);
+  }
+
+  function updateChatUI() {
+    const panel = chatContainer.querySelector('#chat-panel');
+    if (!panel) return;
+    const messagesEl = chatContainer.querySelector('#chat-messages');
+    const wasAtBottom = messagesEl ? messagesEl.scrollHeight - messagesEl.scrollTop <= messagesEl.clientHeight + 20 : true;
+    panel.outerHTML = renderChatPanel(chatMessages, chatLoading);
+    const newMessagesEl = chatContainer.querySelector('#chat-messages');
+    if (newMessagesEl) {
+      chatContainer.querySelector('#chat-form')?.addEventListener('submit', onChatSubmit);
+      if (wasAtBottom) newMessagesEl.scrollTop = newMessagesEl.scrollHeight;
+    }
+  }
+
+  async function onChatSubmit(e) {
+    e.preventDefault();
+    const input = chatContainer.querySelector('#chat-input');
+    const text = input?.value?.trim();
+    if (!text || chatLoading) return;
+    chatMessages.push({ role: 'user', content: text });
+    if (input) input.value = '';
+    chatLoading = true;
+    updateChatUI();
+    try {
+      const { reply: replyContent } = await api.chat.reply({
+        messages: chatMessages.map((m) => ({ role: m.role, content: m.content })),
+        sessionId: chatSessionId,
+      });
+      chatMessages.push({ role: 'assistant', content: replyContent });
+    } catch (err) {
+      chatMessages.push({ role: 'assistant', content: `Error: ${err.message}` });
+    }
+    chatLoading = false;
+    updateChatUI();
+    chatContainer.querySelector('#chat-input')?.focus();
+  }
+
+  chatContainer.innerHTML = renderChatButton();
+  chatContainer.querySelector('#chat-toggle')?.addEventListener('click', openChat);
 
   formSection.innerHTML = renderForm(null, submitForm, cancelForm);
   formSection.addEventListener('submit', (e) => {
