@@ -6,6 +6,7 @@ import { connectDB } from './config/db.js';
 import contactsRouter from './routes/contacts.js';
 import chatRouter from './routes/chat.js';
 import emailRouter from './routes/email.js';
+import * as emailCtrl from './controllers/email.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 4000;
@@ -23,6 +24,7 @@ app.use(clerkMiddleware());
 app.use(express.json());
 app.use('/api/contacts', requireAuthApi, contactsRouter);
 app.use('/api/chat', requireAuthApi, chatRouter);
+app.post('/api/email/test', emailCtrl.test); // sin auth, protegido por EMAIL_TEST_SECRET
 app.use('/api/email', requireAuthApi, emailRouter);
 
 connectDB()
