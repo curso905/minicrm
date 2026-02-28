@@ -20,9 +20,9 @@ function requireAuthApi(req, res, next) {
 }
 
 app.use(cors());
-app.use(clerkMiddleware());
 app.use(express.json());
-app.post('/api/test-email', emailCtrl.test); // sin auth (para tutorial)
+app.post('/api/test-email', emailCtrl.test); // sin auth, antes de Clerk (para tutorial)
+app.use(clerkMiddleware());
 app.use('/api/contacts', requireAuthApi, contactsRouter);
 app.use('/api/chat', requireAuthApi, chatRouter);
 app.use('/api/email', requireAuthApi, emailRouter);
