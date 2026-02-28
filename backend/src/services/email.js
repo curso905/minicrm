@@ -13,10 +13,14 @@ async function getTransporter() {
     const [ipv4] = await resolve4('smtp.gmail.com');
     return nodemailer.createTransport({
       host: ipv4,
-      port: 465,
-      secure: true,
+      port: 587,
+      secure: false,
+      requireTLS: true,
       auth: { user, pass },
       tls: { servername: 'smtp.gmail.com' },
+      connectionTimeout: 20000,
+      greetingTimeout: 20000,
+      socketTimeout: 30000,
     });
   })();
   return transporterPromise;
