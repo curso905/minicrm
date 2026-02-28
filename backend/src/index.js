@@ -5,13 +5,14 @@ import { clerkMiddleware, getAuth } from '@clerk/express';
 import { connectDB } from './config/db.js';
 import contactsRouter from './routes/contacts.js';
 import chatRouter from './routes/chat.js';
+import emailRouter from './routes/email.js';
 
 const app = express();
 const PORT = process.env.PORT ?? 4000;
 
 function requireAuthApi(req, res, next) {
   const auth = getAuth(req);
-  if (!auth.userId) {
+  if (!auth?.isAuthenticated) {
     return res.status(401).json({ error: 'No autenticado. Inicia sesión.' });
   }
   next();
@@ -22,6 +23,7 @@ app.use(clerkMiddleware());
 app.use(express.json());
 app.use('/api/contacts', requireAuthApi, contactsRouter);
 app.use('/api/chat', requireAuthApi, chatRouter);
+app.use('/api/email', requireAuthApi, emailRouter);
 
 connectDB()
   .then(() => {
