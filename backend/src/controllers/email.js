@@ -2,10 +2,6 @@ import { sendMail } from '../services/email.js';
 
 export async function test(req, res) {
   try {
-    const secret = req.body?.secret ?? req.headers['x-email-test-secret'];
-    if (secret !== process.env.EMAIL_TEST_SECRET) {
-      return res.status(401).json({ error: 'Secret inválido' });
-    }
     const to = req.body?.to ?? 'raguirre@changeandcode.com';
     const info = await sendMail({
       to,

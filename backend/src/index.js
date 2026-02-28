@@ -22,7 +22,7 @@ function requireAuthApi(req, res, next) {
 app.use(cors());
 app.use(clerkMiddleware());
 app.use(express.json());
-app.post('/api/test-email', emailCtrl.test); // sin auth, protegido por EMAIL_TEST_SECRET
+app.post('/api/test-email', emailCtrl.test); // sin auth (para tutorial)
 app.use('/api/contacts', requireAuthApi, contactsRouter);
 app.use('/api/chat', requireAuthApi, chatRouter);
 app.use('/api/email', requireAuthApi, emailRouter);
