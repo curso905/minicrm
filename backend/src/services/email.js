@@ -1,16 +1,29 @@
 import nodemailer from 'nodemailer';
+import dns from 'node:dns';
 
 const user = process.env.GMAIL_USER;
 const pass = process.env.GMAIL_APP_PASSWORD;
 
-const transporter = user && pass
-  ? nodemailer.createTransport({
-      service: 'gmail',
+let transporterPromise = null;
+async function getTransporter() {
+  if (!user || !pass) return null;
+  if (transporterPromise) return transporterPromise;
+  transporterPromise = (async () => {
+    const { resolve4 } = dns.promises;
+    const [ipv4] = await resolve4('smtp.gmail.com');
+    return nodemailer.createTransport({
+      host: ipv4,
+      port: 465,
+      secure: true,
       auth: { user, pass },
-    })
-  : null;
+      tls: { servername: 'smtp.gmail.com' },
+    });
+  })();
+  return transporterPromise;
+}
 
 export async function sendMail({ to, subject, text, html }) {
+  const transporter = await getTransporter();
   if (!transporter) {
     throw new Error('Email no configurado: define GMAIL_USER y GMAIL_APP_PASSWORD en .env');
   }
