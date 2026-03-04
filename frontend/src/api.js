@@ -1,18 +1,7 @@
 const BASE = import.meta.env.VITE_API_URL ?? '/api';
 
-let getToken = null;
-export function setClerkTokenGetter(fn) {
-  getToken = fn;
-}
-
 async function request(path, options = {}) {
   const headers = { 'Content-Type': 'application/json', ...options.headers };
-  if (getToken) {
-    try {
-      const token = await getToken();
-      if (token) headers.Authorization = `Bearer ${token}`;
-    } catch (_) {}
-  }
   const res = await fetch(`${BASE}${path}`, { ...options, headers });
   if (res.status === 204) return null;
   const data = await res.json().catch(() => ({}));

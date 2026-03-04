@@ -11,14 +11,9 @@ function escapeHtml(s) {
 let contacts = [];
 let editingId = null;
 
-export async function initApp(clerk) {
+export async function initApp() {
   const root = document.getElementById('app');
   if (!root) return;
-
-  if (clerk) {
-    const { setClerkTokenGetter } = await import('./api.js');
-    setClerkTokenGetter(() => clerk.session.getToken());
-  }
 
   root.innerHTML = `
     <div class="min-h-screen max-w-4xl mx-auto px-4 py-8">
@@ -31,7 +26,6 @@ export async function initApp(clerk) {
           <button type="button" id="open-dashboard" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">
             Dashboard
           </button>
-          <div id="user-button-wrap"></div>
         </div>
       </header>
       <main class="space-y-6">
@@ -195,11 +189,6 @@ export async function initApp(clerk) {
 
   chatContainer.innerHTML = renderChatButton();
   chatContainer.querySelector('#chat-toggle')?.addEventListener('click', openChat);
-
-  if (clerk) {
-    const wrap = root.querySelector('#user-button-wrap');
-    if (wrap) clerk.mountUserButton(wrap);
-  }
 
   formSection.innerHTML = renderForm(null, submitForm, cancelForm);
   formSection.addEventListener('submit', (e) => {
