@@ -68,16 +68,12 @@ export async function initApp() {
 
   root.querySelector('#open-dashboard')?.addEventListener('click', openDashboard);
 
-  const priceBasico = import.meta.env.VITE_STRIPE_PRICE_BASICO?.trim();
   root.querySelector('#buy-basico')?.addEventListener('click', async () => {
-    if (!priceBasico) {
-      alert('Configura VITE_STRIPE_PRICE_BASICO en .env (Price ID price_... del producto Basico).');
-      return;
-    }
     const origin = window.location.origin;
+    const priceBasico = import.meta.env.VITE_STRIPE_PRICE_BASICO?.trim();
     try {
       await api.stripe.checkout({
-        priceId: priceBasico,
+        ...(priceBasico && { priceId: priceBasico }),
         successUrl: `${origin}/?pago=ok`,
         cancelUrl: `${origin}/?pago=cancelado`,
         mode: 'subscription',

@@ -3,9 +3,22 @@ import { stripe } from '../config/stripe.js';
 
 export async function checkoutSession(req, res) {
   try {
-    const { priceId, successUrl, cancelUrl, mode } = req.body ?? {};
-    if (!priceId || !successUrl || !cancelUrl) {
-      return res.status(400).json({ error: 'priceId, successUrl y cancelUrl son requeridos' });
+    const { priceId: bodyPriceId, successUrl, cancelUrl, mode } = req.body ?? {};
+    const priceId = bodyPriceId || process.env.STRIPE_PRICE_BASICO?.trim();
+    if (!successUrl || !cancelUrl) {
+      return res.status(400).json({ error: 'successUrl y cancelUrl son requeridos' });
+    }
+    if (!priceId) {
+      return res.status(400).json({
+        error:
+          'Falta priceId o STRIPE_PRICE_BASICO en backend/.env (Price ID price_... del producto Basico en Stripe).',
+      });
+    }
+    if (priceId.startsWith('prod_')) {
+      return res.status(400).json({
+        error:
+          'Usa el Price ID (price_...), no el Product ID (prod_...). En Stripe: Product catalog → Basico → clic en el precio → copiar price_...',
+      });
     }
     const data = await createCheckoutSession({ priceId, successUrl, cancelUrl, mode });
     res.json(data);

@@ -29,6 +29,14 @@ npm run dev
 
 Abre `http://localhost:3000`. El proxy de Vite envía `/api` al backend en el puerto 4000.
 
+### Producción (ej. Render)
+
+- **Frontend (build estático):** al hacer `npm run build`, Vite incrusta `VITE_API_URL`. Debe ser la URL **del servicio API**, no la del sitio estático.
+  - Ejemplo: si el front está en `https://minicrm-1ea8.onrender.com` y el API en otro servicio, en el **build del front** usa:
+    - `VITE_API_URL=https://<tu-servicio-backend>.onrender.com/api`
+  - En Render: Variables de entorno del **Static Site** → `VITE_API_URL` = URL pública del **Web Service** del backend + `/api`.
+- **Stripe:** en el backend, `STRIPE_SECRET_KEY` y `STRIPE_PRICE_BASICO=price_...` (Price ID del plan; nunca `prod_...`).
+
 ## Variables de entorno (backend)
 
 | Variable     | Descripción                    |
@@ -37,6 +45,9 @@ Abre `http://localhost:3000`. El proxy de Vite envía `/api` al backend en el pu
 | `MONGODB_URI`| URL de MongoDB Atlas          |
 | `RESEND_API_KEY` | API key de [Resend](https://resend.com) (SMTP con Nodemailer) |
 | `MAIL_FROM`  | Remitente verificado, ej. `MiniCRM <onboarding@tudominio.com>` |
+| `STRIPE_SECRET_KEY` | Clave secreta Stripe (`sk_test_...` / `sk_live_...`) |
+| `STRIPE_PRICE_BASICO` | Price ID `price_...` del plan Básico (Checkout) |
+| `STRIPE_WEBHOOK_SECRET` | Opcional; firma de webhooks |
 
 ## Estructura
 
