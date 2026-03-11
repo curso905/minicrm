@@ -22,9 +22,12 @@ export async function initApp() {
           <h1 class="text-2xl font-semibold text-red-800">Mini CRM</h1>
           <p class="text-red-600 text-sm mt-1">Contactos</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
           <button type="button" id="open-dashboard" class="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 transition-colors">
             Dashboard
+          </button>
+          <button type="button" id="buy-basico" class="rounded-lg border border-red-600 bg-white px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50 transition-colors">
+            Membresía Básico
           </button>
         </div>
       </header>
@@ -64,6 +67,25 @@ export async function initApp() {
   }
 
   root.querySelector('#open-dashboard')?.addEventListener('click', openDashboard);
+
+  const priceBasico = import.meta.env.VITE_STRIPE_PRICE_BASICO?.trim();
+  root.querySelector('#buy-basico')?.addEventListener('click', async () => {
+    if (!priceBasico) {
+      alert('Configura VITE_STRIPE_PRICE_BASICO en .env (Price ID price_... del producto Basico).');
+      return;
+    }
+    const origin = window.location.origin;
+    try {
+      await api.stripe.checkout({
+        priceId: priceBasico,
+        successUrl: `${origin}/?pago=ok`,
+        cancelUrl: `${origin}/?pago=cancelado`,
+        mode: 'subscription',
+      });
+    } catch (e) {
+      alert(e.message);
+    }
+  });
 
   async function load() {
     listSection.innerHTML = '<p class="text-red-600 text-sm">Cargando…</p>';

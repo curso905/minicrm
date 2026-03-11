@@ -17,7 +17,7 @@ npm install
 npm run dev
 ```
 
-API en `http://localhost:4000`. Rutas: `GET/POST /api/contacts`, `GET/PATCH/DELETE /api/contacts/:id`.
+API en `http://localhost:4000`. Rutas: `GET/POST /api/contacts`, `GET/PATCH/DELETE /api/contacts/:id`, `POST /api/mail/send` (correo vía Resend).
 
 ## Frontend
 
@@ -35,6 +35,8 @@ Abre `http://localhost:3000`. El proxy de Vite envía `/api` al backend en el pu
 | ------------ | ------------------------------ |
 | `PORT`       | Puerto del servidor (default 4000) |
 | `MONGODB_URI`| URL de MongoDB Atlas          |
+| `RESEND_API_KEY` | API key de [Resend](https://resend.com) (SMTP con Nodemailer) |
+| `MAIL_FROM`  | Remitente verificado, ej. `MiniCRM <onboarding@tudominio.com>` |
 
 ## Estructura
 

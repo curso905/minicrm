@@ -20,4 +20,14 @@ export const api = {
   chat: {
     reply: (body) => request('/chat', { method: 'POST', body: JSON.stringify(body) }),
   },
+  stripe: {
+    /** Redirige a Stripe Checkout. Necesitas priceId del Dashboard. */
+    checkout: async ({ priceId, successUrl, cancelUrl, mode }) => {
+      const { url } = await request('/stripe/checkout-session', {
+        method: 'POST',
+        body: JSON.stringify({ priceId, successUrl, cancelUrl, mode }),
+      });
+      if (url) window.location.href = url;
+    },
+  },
 };
